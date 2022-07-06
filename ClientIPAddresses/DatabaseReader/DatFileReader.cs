@@ -1,9 +1,7 @@
 ﻿using ClientIPAddresses.Interfaces;
 using ClientIPAddresses.Models;
 using System.Diagnostics;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace ClientIPAddresses.DatabaseReader
 {
@@ -19,13 +17,12 @@ namespace ClientIPAddresses.DatabaseReader
             long start = Stopwatch.GetTimestamp();
             byte[] bytes;
             using (FileStream fileStream = new FileStream(@"..\ClientIPAddresses\geobase.dat", FileMode.Open, FileAccess.Read))
-            using (BinaryReader br = new BinaryReader(fileStream, Encoding.UTF8, false))
             {
                 long length = fileStream.Length;
                 bytes = new byte[length];
-                br.Read(bytes, 0, bytes.Length);
+                fileStream.Read(bytes, 0, bytes.Length);
             }
-
+            long end = Stopwatch.GetTimestamp();
             var version = BitConverter.ToInt32(bytes, 0);
             var name = Encoding.Default.GetString(bytes, 4, 32);
             var timestamp = UnixTimeStampToDateTime((ulong)BitConverter.ToInt64(bytes, 36));
@@ -58,7 +55,7 @@ namespace ClientIPAddresses.DatabaseReader
             {
                 LocationIndexes[i] = BitConverter.ToInt32(bytes, (int)(offset_cities + i * 4));
             }
-            long end = Stopwatch.GetTimestamp();
+            //long end = Stopwatch.GetTimestamp();
             var timespan = end - start;
             TimeSpan elapsedSpan = new TimeSpan(timespan);
             var ms = elapsedSpan.Milliseconds;
