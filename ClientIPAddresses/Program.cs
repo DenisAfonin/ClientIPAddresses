@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IDatFileReader, DatFileReader>();
+builder.Services.AddSingleton<IDatFileReader, DatFileReader>();
 
 var app = builder.Build();
 
@@ -28,7 +28,7 @@ using (var serviceScope = app.Services.CreateScope())
     var services = serviceScope.ServiceProvider;
 
     var myDependency = services.GetRequiredService<IDatFileReader>();
-    summaries = myDependency.Read();
+    summaries = myDependency.Locations;
 }
 
 app.MapGet("/weatherforecast", () =>

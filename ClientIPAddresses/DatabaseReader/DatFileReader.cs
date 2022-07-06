@@ -1,4 +1,6 @@
 ﻿using ClientIPAddresses.Interfaces;
+using ClientIPAddresses.Models;
+using System.Diagnostics;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -7,100 +9,70 @@ namespace ClientIPAddresses.DatabaseReader
 {
     public class DatFileReader : IDatFileReader
     {
-        public object Read()
+        public DatFileReader()
         {
+            Read();
+        }
+
+        private void Read()
+        {
+            long start = Stopwatch.GetTimestamp();
+            byte[] bytes;
             using (FileStream fileStream = new FileStream(@"..\ClientIPAddresses\geobase.dat", FileMode.Open, FileAccess.Read))
             using (BinaryReader br = new BinaryReader(fileStream, Encoding.UTF8, false))
             {
-                //long length = fileStream.Length;
-                //byte[] bytes = new byte[length];
-                ////Read the contents of the file and save it to the byte array
-                //br.Read(bytes, 0, bytes.Length);
-                ////Convert byte array to string
-                //string str = Encoding.Default.GetString(bytes);
-                //  var c = br.ReadBytes(60);
-                var version = br.ReadInt32();
-                var nameBytes = new byte[32];
-                for (int i = 0; i < nameBytes.Length; i++)
-                {
-                    nameBytes[i] = br.ReadByte();
-                }
-                var name = Encoding.Default.GetString(nameBytes, 0, nameBytes.Length);
-                DateTime creationDate = GetDTCTime((ulong)br.ReadInt64());
-                var recordsAmount = br.ReadInt32();
-                var offset_ranges = (uint)br.ReadInt32();
-                var offset_cities = (uint)br.ReadInt32();
-                var offset_locations = (uint)br.ReadInt32();
-                var ipIntervals = new List<IPIntervall>();
-                for (var i = 0; i < recordsAmount; i++)
-                {
-                    var ipInterval = new IPIntervall();
-                    ipInterval.ip_from = (uint)br.ReadInt32();
-                    ipInterval.ip_to = (uint)br.ReadInt32();
-                    ipInterval.location_index = (uint)br.ReadInt32();
-                    ipIntervals.Add(ipInterval);
-                }
-                var locations = new List<Location>();
-                for (var i = 0; i < recordsAmount; i++)
-                {
-                    var location = new Location();
-                    location.country = byteArrayToString(br, 8);
-                    location.region = byteArrayToString(br, 12);
-                    location.postal = byteArrayToString(br, 12);
-                    location.city = byteArrayToString(br, 24);
-                    location.organization = byteArrayToString(br, 32);
-                    location.latitude = br.ReadSingle();
-                    location.longitude = br.ReadSingle();
-                    locations.Add(location);
-                }
-                var recordIndexes = new List<int>();
-                for (var i = 0; i < recordsAmount; i++)
-                {
-                    recordIndexes.Add(br.ReadInt32());
-                }
-                return 0;
+                long length = fileStream.Length;
+                bytes = new byte[length];
+                br.Read(bytes, 0, bytes.Length);
             }
-        }
 
-        private string byteArrayToString(BinaryReader br, short numberOfByte)
-        {
-            var byteArray = new byte[numberOfByte];
-            for (int i = 0; i < byteArray.Length; i++)
+            var version = BitConverter.ToInt32(bytes, 0);
+            var name = Encoding.Default.GetString(bytes, 4, 32);
+            var timestamp = UnixTimeStampToDateTime((ulong)BitConverter.ToInt64(bytes, 36));
+            var recordsAmount = BitConverter.ToInt32(bytes, 44);
+            var offset_ranges = (uint)BitConverter.ToInt32(bytes, 48);
+            var offset_cities = (uint)BitConverter.ToInt32(bytes, 52);
+            var offset_locations = (uint)BitConverter.ToInt32(bytes, 56);
+            IPIntervalls = new IPIntervall[recordsAmount];
+            for (var i = 0; i < recordsAmount; i++)
             {
-                byteArray[i] = br.ReadByte();
+                IPIntervalls[i] = new IPIntervall();
+                IPIntervalls[i].IPFrom = (uint)BitConverter.ToInt32(bytes, (int)offset_ranges + i * 12);
+                IPIntervalls[i].IPTo = (uint)BitConverter.ToInt32(bytes, (int)offset_ranges + 4 + i * 12);
+                IPIntervalls[i].LocationIndex = (uint)BitConverter.ToInt32(bytes, (int)offset_ranges + 8 + i * 12);
             }
-            var res = Encoding.Default.GetString(byteArray, 0, byteArray.Length);
-            return res;
+            Locations = new Location[recordsAmount];
+            for (var i = 0; i < recordsAmount; i++)
+            {
+                Locations[i] = new Location();
+                Locations[i].Country = Encoding.Default.GetString(bytes, (int)offset_locations + i * 96, 8);
+                Locations[i].Region = Encoding.Default.GetString(bytes, (int)offset_locations + 8 + i * 96, 12);
+                Locations[i].Postal = Encoding.Default.GetString(bytes, (int)offset_locations + 20 + i * 96, 12);
+                Locations[i].City = Encoding.Default.GetString(bytes, (int)offset_locations + 32 + i * 96, 24);
+                Locations[i].Organization = Encoding.Default.GetString(bytes, (int)offset_locations + 56 + i * 96, 32);
+                Locations[i].Latitude = BitConverter.ToSingle(bytes, (int)offset_locations + 88 + i * 96);
+                Locations[i].Longitude = BitConverter.ToSingle(bytes, (int)offset_locations + 92 + i * 96);
+            }
+            LocationIndexes = new int[recordsAmount];
+            for (var i = 0; i < recordsAmount; i++)
+            {
+                LocationIndexes[i] = BitConverter.ToInt32(bytes, (int)(offset_cities + i * 4));
+            }
+            long end = Stopwatch.GetTimestamp();
+            var timespan = end - start;
+            TimeSpan elapsedSpan = new TimeSpan(timespan);
+            var ms = elapsedSpan.Milliseconds;
         }
 
-        DateTime GetDTCTime(ulong nanoseconds, ulong ticksPerNanosecond)
+        private DateTime UnixTimeStampToDateTime(ulong unixTimeStamp)
         {
-            DateTime pointOfReference = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            long ticks = (long)(nanoseconds / ticksPerNanosecond);
-            return pointOfReference.AddTicks(ticks);
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dateTime;
         }
 
-        DateTime GetDTCTime(ulong nanoseconds)
-        {
-            return GetDTCTime(nanoseconds, 100);
-        }
-
-        public class IPIntervall
-        {
-            public uint ip_from;           // начало диапазона IP адресов
-            public uint ip_to;             // конец диапазона IP адресов
-            public uint location_index;    // индекс записи о местоположении
-        }
-
-        public class Location
-        {
-            public string country;        // название страны (случайная строка с префиксом "cou_")
-            public string region;        // название области (случайная строка с префиксом "reg_")
-            public string postal;        // почтовый индекс (случайная строка с префиксом "pos_")
-            public string city;          // название города (случайная строка с префиксом "cit_")
-            public string organization;  // название организации (случайная строка с префиксом "org_")
-            public float latitude;          // широта
-            public float longitude;         // долгота
-        }
+        public IPIntervall[] IPIntervalls { get; private set; }
+        public Location[] Locations { get; private set; }
+        public int[] LocationIndexes { get; private set; }
     }
 }

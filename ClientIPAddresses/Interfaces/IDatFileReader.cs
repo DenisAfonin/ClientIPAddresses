@@ -1,7 +1,11 @@
-﻿namespace ClientIPAddresses.Interfaces
+﻿using ClientIPAddresses.Models;
+
+namespace ClientIPAddresses.Interfaces
 {
     public interface IDatFileReader
     {
-        object Read();
+        IPIntervall[] IPIntervalls { get; }
+        Location[] Locations { get; }
+        int[] LocationIndexes { get; }
     }
 }
