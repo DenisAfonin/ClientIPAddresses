@@ -8,6 +8,11 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IDatFileReader, DatFileReader>();
 
 var app = builder.Build();
+using (var serviceScope = app.Services.CreateScope())
+{
+    var services = serviceScope.ServiceProvider;
+    services.GetRequiredService<IDatFileReader>();
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

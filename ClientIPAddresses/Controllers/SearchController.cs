@@ -13,17 +13,16 @@ namespace ClientIPAddresses.Controllers
             _datFileReader = datFileReader;
         }
 
-        [HttpGet]
-        [Route("ip/location")]
-        public GEOInformation Get(string ip)
+        [HttpGet("ip/location")]
+        public GEOInformation GetGEOInformationsByIP(string ip)
         {
             return _datFileReader.GetGEOInformationsByIP(ip);
         }
 
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("city/locations")]
+        public List<Location> GetLocationsByCity(string city)
         {
-            return "value";
+            return _datFileReader.GetLocationsByCity(city);
         }
     }
 }

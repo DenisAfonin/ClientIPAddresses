@@ -12,19 +12,85 @@
 <body>
     <div class="sidebar">
         <header>Поиск</header>
-        <a href="#">
+        <a href="#" onclick="showContent('ip')">
             <i class="fas fa-stream"></i>
             <span>по IP</span>
         </a>
-        <a href="#">
+        <a href="#" onclick="showContent('city')">
             <i class="fas fa-sliders-h"></i>
             <span>по городу</span>
         </a>
     </div>
     <div class="main">
-        <div class="form-wrapper">
-            <input type="text" id="search" placeholder="Введите IP для">
-            <input type="submit" value="Искать" id="submit" onclick="sendAjax()">
+        <div id="ip" class="content">
+            <div class="form-wrapper">
+                <input type="text" id="searchip" placeholder="Введите IP">
+                <input type="submit" value="Искать" id="submitip" onclick="searchByIP()">
+            </div>
+            <div class="container">
+                <h1>Cootdinates</h1>
+                <table class="rwd-table">
+                    <tbody>
+                        <tr>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                        </tr>
+                        <tr>
+                            <td data-th="Supplier Code">
+                                UPS5005
+                            </td>
+                            <td data-th="Supplier Name">
+                                UPS
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="city" style="display:none" class="content">
+            <div class="form-wrapper">
+                <input type="text" id="searchcity" placeholder="Введите название города">
+                <input type="submit" value="Искать" id="submitcity" onclick="searchByCity()">
+            </div>
+            <div class="container">
+                <h1>Locations</h1>
+                <table class="rwd-table">
+                    <tbody>
+                        <tr>
+                            <th>Country</th>
+                            <th>Region</th>
+                            <th>Postal</th>
+                            <th>City</th>
+                            <th>Organization</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                        </tr>
+                        <tr>
+                            <td data-th="Supplier Code">
+                                UPS5005
+                            </td>
+                            <td data-th="Supplier Name">
+                                UPS
+                            </td>
+                            <td data-th="Invoice Number">
+                                ASDF19218
+                            </td>
+                            <td data-th="Invoice Date">
+                                06/25/2016
+                            </td>
+                            <td data-th="Due Date">
+                                12/25/2016
+                            </td>
+                            <td data-th="Net Amount">
+                                $8,322.12
+                            </td>
+                            <td data-th="Net">
+                                $8,322.12
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </body>
