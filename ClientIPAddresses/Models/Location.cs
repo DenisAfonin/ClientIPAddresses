@@ -9,5 +9,6 @@
         public string Organization { get; set; }  // название организации (случайная строка с префиксом "org_")
         public float Latitude { get; set; }          // широта
         public float Longitude { get; set; }         // долгота
+        public int AddressIndexInFile { get; set; }
     }
 }

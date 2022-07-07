@@ -1,6 +1,7 @@
 ﻿using ClientIPAddresses.Interfaces;
 using ClientIPAddresses.Models;
 using System.Diagnostics;
+using System.Net;
 using System.Text;
 
 namespace ClientIPAddresses.DatabaseReader
@@ -29,7 +30,7 @@ namespace ClientIPAddresses.DatabaseReader
             var recordsAmount = BitConverter.ToInt32(bytes, 44);
             var offset_ranges = (uint)BitConverter.ToInt32(bytes, 48);
             var offset_cities = (uint)BitConverter.ToInt32(bytes, 52);
-            var offset_locations = (uint)BitConverter.ToInt32(bytes, 56);
+            OffsetLocations = (uint)BitConverter.ToInt32(bytes, 56);
             IPIntervalls = new IPIntervall[recordsAmount];
             for (var i = 0; i < recordsAmount; i++)
             {
@@ -41,14 +42,16 @@ namespace ClientIPAddresses.DatabaseReader
             Locations = new Location[recordsAmount];
             for (var i = 0; i < recordsAmount; i++)
             {
+                var shiftIndex = i * 96;
                 Locations[i] = new Location();
-                Locations[i].Country = Encoding.Default.GetString(bytes, (int)offset_locations + i * 96, 8);
-                Locations[i].Region = Encoding.Default.GetString(bytes, (int)offset_locations + 8 + i * 96, 12);
-                Locations[i].Postal = Encoding.Default.GetString(bytes, (int)offset_locations + 20 + i * 96, 12);
-                Locations[i].City = Encoding.Default.GetString(bytes, (int)offset_locations + 32 + i * 96, 24);
-                Locations[i].Organization = Encoding.Default.GetString(bytes, (int)offset_locations + 56 + i * 96, 32);
-                Locations[i].Latitude = BitConverter.ToSingle(bytes, (int)offset_locations + 88 + i * 96);
-                Locations[i].Longitude = BitConverter.ToSingle(bytes, (int)offset_locations + 92 + i * 96);
+                Locations[i].AddressIndexInFile = shiftIndex;
+                Locations[i].Country = Encoding.Default.GetString(bytes, (int)OffsetLocations + shiftIndex, 8);
+                Locations[i].Region = Encoding.Default.GetString(bytes, (int)OffsetLocations + 8 + shiftIndex, 12);
+                Locations[i].Postal = Encoding.Default.GetString(bytes, (int)OffsetLocations + 20 + shiftIndex, 12);
+                Locations[i].City = Encoding.Default.GetString(bytes, (int)OffsetLocations + 32 + shiftIndex, 24);
+                Locations[i].Organization = Encoding.Default.GetString(bytes, (int)OffsetLocations + 56 + shiftIndex, 32);
+                Locations[i].Latitude = BitConverter.ToSingle(bytes, (int)OffsetLocations + 88 + shiftIndex);
+                Locations[i].Longitude = BitConverter.ToSingle(bytes, (int)OffsetLocations + 92 + shiftIndex);
             }
             LocationIndexes = new int[recordsAmount];
             for (var i = 0; i < recordsAmount; i++)
@@ -68,8 +71,60 @@ namespace ClientIPAddresses.DatabaseReader
             return dateTime;
         }
 
-        public IPIntervall[] IPIntervalls { get; private set; }
-        public Location[] Locations { get; private set; }
-        public int[] LocationIndexes { get; private set; }
+        public GEOInformation GetGEOInformationsByIP(string ipString)
+        {
+            var ipAddress = IPAddress.Parse(ipString);
+            var ipBytes = ipAddress.GetAddressBytes();
+            var ip = (uint)ipBytes[0] << 24;
+            ip += (uint)ipBytes[1] << 16;
+            ip += (uint)ipBytes[2] << 8;
+            ip += (uint)ipBytes[3];
+            var locationIndex = BinarySearchLocationIndexByIP(ip);
+            var recordIndex = LocationIndexes[locationIndex];
+            var location = Locations.FirstOrDefault(p => p.AddressIndexInFile == recordIndex);
+            return new GEOInformation
+            {
+                Latitude = location.Latitude,
+                Longitude = location.Longitude,
+            };
+        }
+
+        private uint BinarySearchLocationIndexByIP(uint ip)
+        {
+            var arr = IPIntervalls;
+            int minNum = 0;
+            int maxNum = IPIntervalls.Length - 1;
+
+            while (minNum <= maxNum)
+            {
+                int mid = (minNum + maxNum) / 2;
+                if (ip < IPIntervalls[mid].IPTo && ip > IPIntervalls[mid].IPFrom)
+                {
+                    return IPIntervalls[mid].LocationIndex;
+                }
+                else if (ip < IPIntervalls[mid].IPFrom)
+                {
+                    maxNum = mid - 1;
+                }
+                else
+                {
+                    minNum = mid + 1;
+                }
+            }
+            throw new Exception("IP Interval not found");
+        }
+
+        public Location[] GetLocationsByCity()
+        {
+            string[] myArr = Locations.GroupBy(p => p.City).Where(p => p.Count() > 1).Select(p => p.Key).ToArray();
+            Array.Sort(myArr); //Apple Microsoft StackOverflow Yahoo 
+            var index = Array.BinarySearch<string>(myArr, "cit_Gbqw4");
+            return Locations;
+        }
+
+        private IPIntervall[] IPIntervalls { get; set; }
+        private Location[] Locations { get; set; }
+        private int[] LocationIndexes { get; set; }
+        private uint OffsetLocations { get; set; }
     }
 }

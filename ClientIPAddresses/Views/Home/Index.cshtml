@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<!-- Created By CodingNepal -->
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <!-- <title>Responsive Sidebar Menu</title> -->
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <script src="js/index.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <header>Поиск</header>
+        <a href="#">
+            <i class="fas fa-stream"></i>
+            <span>по IP</span>
+        </a>
+        <a href="#">
+            <i class="fas fa-sliders-h"></i>
+            <span>по городу</span>
+        </a>
+    </div>
+    <div class="main">
+        <div class="form-wrapper">
+            <input type="text" id="search" placeholder="Введите IP для">
+            <input type="submit" value="Искать" id="submit" onclick="sendAjax()">
+        </div>
+    </div>
+</body>
+</html>

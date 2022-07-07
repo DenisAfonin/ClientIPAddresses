@@ -3,38 +3,15 @@ using ClientIPAddresses.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddControllersWithViews();
 
 builder.Services.AddSingleton<IDatFileReader, DatFileReader>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-object summaries;
-
-using (var serviceScope = app.Services.CreateScope())
-{
-    var services = serviceScope.ServiceProvider;
-
-    var myDependency = services.GetRequiredService<IDatFileReader>();
-    summaries = myDependency.Locations;
-}
-
-app.MapGet("/weatherforecast", () =>
-{   
-    return summaries;
-})
-.WithName("GetWeatherForecast");
+app.MapDefaultControllerRoute();
 
 app.Run();
