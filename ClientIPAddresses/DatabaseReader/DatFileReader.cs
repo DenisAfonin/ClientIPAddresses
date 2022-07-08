@@ -10,12 +10,7 @@ namespace ClientIPAddresses.DatabaseReader
     {
         public DatFileReader()
         {
-            Read();
-        }
-
-        private void Read()
-        {
-            var start = Stopwatch.GetTimestamp();
+            //var start = Stopwatch.GetTimestamp();
             byte[] bytes;
             using (var fileStream = new FileStream(@"..\ClientIPAddresses\geobase.dat", FileMode.Open, FileAccess.Read))
             {
@@ -24,29 +19,32 @@ namespace ClientIPAddresses.DatabaseReader
                 fileStream.Read(bytes, 0, bytes.Length);
             }
             //long end = Stopwatch.GetTimestamp();
+            //var timespan = end - start;
+            //var elapsedSpan = new TimeSpan(timespan);
+            //var ms = elapsedSpan.TotalMilliseconds;
             var recordsAmount = BitConverter.ToInt32(bytes, 44);
             var offsetRanges = BitConverter.ToUInt32(bytes, 48);
             var offsetCities = BitConverter.ToUInt32(bytes, 52);
-            OffsetLocations = BitConverter.ToUInt32(bytes, 56);
-            IPIntervalls = new IPIntervall[recordsAmount];
+            var offsetLocations = BitConverter.ToUInt32(bytes, 56);
+            iPIntervalls = new IPIntervall[recordsAmount];
             for (var i = 0; i < recordsAmount; i++)
             {
                 var shiftIndex = i * 12;
                 var shiftFromOffset = (int)offsetRanges + shiftIndex;
-                IPIntervalls[i] = new IPIntervall
+                iPIntervalls[i] = new IPIntervall
                 {
                     IPFrom = BitConverter.ToUInt32(bytes, shiftFromOffset),
                     IPTo = BitConverter.ToUInt32(bytes, shiftFromOffset + 4),
                     LocationIndex = BitConverter.ToUInt32(bytes, shiftFromOffset + 8)
                 };
             }
-            Locations = new Location[recordsAmount];
+            locations = new Location[recordsAmount];
 
             for (var i = 0; i < recordsAmount; i++)
             {
                 var shiftIndex = i * 96;
-                var shiftFromOffset = (int)OffsetLocations + shiftIndex;
-                var location = Locations[i] = new Location
+                var shiftFromOffset = (int)offsetLocations + shiftIndex;
+                var location = locations[i] = new Location
                 {
                     AddressIndexInFile = shiftIndex,
                     Country = Encoding.Default.GetString(bytes, shiftFromOffset, 8).TrimEnd('\0'),
@@ -57,24 +55,21 @@ namespace ClientIPAddresses.DatabaseReader
                     Latitude = BitConverter.ToSingle(bytes, shiftFromOffset + 88),
                     Longitude = BitConverter.ToSingle(bytes, shiftFromOffset + 92)
                 };
-                if (LocationsDictionary.ContainsKey(location.City))
+                if (locationsDictionary.ContainsKey(location.City))
                 {
-                    LocationsDictionary[location.City].Add(location);
+                    locationsDictionary[location.City].Add(location);
                 }
                 else
                 {
-                    LocationsDictionary.Add(location.City, new List<Location> { location });
+                    locationsDictionary.Add(location.City, new List<Location> { location });
                 }
             }
 
-            LocationIndexes = new int[recordsAmount];
+            locationIndexes = new int[recordsAmount];
             for (var i = 0; i < recordsAmount; i++)
             {
-                LocationIndexes[i] = BitConverter.ToInt32(bytes, (int)(offsetCities + i * 4));
+                locationIndexes[i] = BitConverter.ToInt32(bytes, (int)(offsetCities + i * 4));
             }
-            var end = Stopwatch.GetTimestamp();
-            var timespan = end - start;
-            var elapsedSpan = new TimeSpan(timespan);
         }
 
         public GEOInformation? GetGEOInformationsByIP(string ipString)
@@ -90,12 +85,12 @@ namespace ClientIPAddresses.DatabaseReader
             ip += (uint)ipBytes[2] << 8;
             ip += (uint)ipBytes[3];
             var locationIndex = BinarySearchLocationIndexByIP(ip);
-            if (!locationIndex.HasValue || LocationIndexes.Length - 1 < locationIndex)
+            if (!locationIndex.HasValue || locationIndexes.Length - 1 < locationIndex)
             {
                 return null;
             }
-            var recordIndex = LocationIndexes[locationIndex.Value];
-            var location = Locations.FirstOrDefault(p => p.AddressIndexInFile == recordIndex);
+            var recordIndex = locationIndexes[locationIndex.Value];
+            var location = locations.FirstOrDefault(p => p.AddressIndexInFile == recordIndex);
             if (location == null)
             {
                 return null;
@@ -110,16 +105,16 @@ namespace ClientIPAddresses.DatabaseReader
         private uint? BinarySearchLocationIndexByIP(uint ip)
         {
             int minNum = 0;
-            int maxNum = IPIntervalls.Length - 1;
+            int maxNum = iPIntervalls.Length - 1;
 
             while (minNum <= maxNum)
             {
                 int mid = (minNum + maxNum) / 2;
-                if (ip < IPIntervalls[mid].IPTo && ip > IPIntervalls[mid].IPFrom)
+                if (ip < iPIntervalls[mid].IPTo && ip > iPIntervalls[mid].IPFrom)
                 {
-                    return IPIntervalls[mid].LocationIndex;
+                    return iPIntervalls[mid].LocationIndex;
                 }
-                else if (ip < IPIntervalls[mid].IPFrom)
+                else if (ip < iPIntervalls[mid].IPFrom)
                 {
                     maxNum = mid - 1;
                 }
@@ -133,17 +128,16 @@ namespace ClientIPAddresses.DatabaseReader
 
         public List<Location>? GetLocationsByCity(string city)
         {
-            if (!LocationsDictionary.ContainsKey(city))
+            if (!locationsDictionary.ContainsKey(city))
             {
                 return null;
             }
-            return LocationsDictionary[city];
+            return locationsDictionary[city];
         }
 
-        private IPIntervall[] IPIntervalls { get; set; }
-        private Location[] Locations { get; set; }
-        private int[] LocationIndexes { get; set; }
-        private uint OffsetLocations { get; set; }
-        private Dictionary<string, List<Location>> LocationsDictionary { get; set; } = new Dictionary<string, List<Location>>();
+        private IPIntervall[] iPIntervalls;
+        private Location[] locations;
+        private int[] locationIndexes;
+        private Dictionary<string, List<Location>> locationsDictionary = new Dictionary<string, List<Location>>();
     }
 }

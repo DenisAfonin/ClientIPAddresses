@@ -12,20 +12,14 @@
     }
 
     const url = '/ip/location?ip=' + searchInput.value;
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-
+    const response = await getResponse(url);
     let tableBody = document.getElementById("coordinates");
 
     if (!response.ok) {
         tableBody.innerHTML = "<tr><td colspan=2>Координаты не найдены</td></tr>";
         return;
     }
-    let location = await response.json();
+    const location = await response.json();
     tableBody.innerHTML = "<tr><td>" + location.latitude + "</td><td>" + location.longitude + "</td></tr>";
 }
 
@@ -36,14 +30,7 @@ async function searchByCity() {
     // const url = '/city/locations?city=cit_Gbqw4';
     // const url = '/city/locations?city=cit_Ejid';
     const url = '/city/locations?city=' + searchInput.value;
-
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-
+    const response = await getResponse(url);
     let tableBody = document.getElementById("locations");
 
     if (!response.ok) {
@@ -51,7 +38,7 @@ async function searchByCity() {
         return;
     }
 
-    let locations = await response.json();
+    const locations = await response.json();
     console.log(locations);
 
     tableBody.innerHTML = "";
@@ -63,9 +50,9 @@ async function searchByCity() {
 }
 
 function showContent(id) {
-    var contents = document.getElementsByClassName('content');
+    let contents = document.getElementsByClassName('content');
     Array.prototype.forEach.call(contents, element => element.style.display = 'none');
-    const selectedContent = document.getElementById(id);
+    let selectedContent = document.getElementById(id);
     selectedContent.style.display = 'block';
 }
 
@@ -74,4 +61,13 @@ function validateIPaddress(ipaddress) {
         return true;
     }
     return false;
+}
+
+async function getResponse(url) {
+    return await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
 }
