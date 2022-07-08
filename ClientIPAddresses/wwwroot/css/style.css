@@ -56,6 +56,12 @@ a.active, a:hover {
     text-transform: uppercase;
 }
 
+.main {
+    transition: margin-left .5s;
+    padding: 20px;
+    padding-left: 240px;
+}
+
 @media(max-width : 860px) {
     .sidebar {
         height: auto;
@@ -92,11 +98,10 @@ a.active, a:hover {
         opacity: 1;
         visibility: visible;
     }
-}
 
-.main {
-    transition: margin-left .5s;
-    padding: 20px;
+    .main {
+        padding-left: 70px;
+    }
 }
 
 .form-wrapper {
@@ -136,6 +141,7 @@ a.active, a:hover {
         height: 20px;
         padding: 10px;
         width: 320px;
+        float: left;
     }
 
         .form-wrapper #searchip, #searchcity:focus {
@@ -201,6 +207,30 @@ a.active, a:hover {
             border: 0;
         }
 
+.error-message {
+    color: #cc0033;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 15px;
+    margin: 5px 0 0;
+    float: left;
+    clear: left;
+}
+
+.form-wrapper .error-message {
+    display: none;
+}
+
+.error input[type=text] {
+    background-color: #fce4e4;
+    border: 1px solid #cc0033;
+    outline: none;
+}
+
+.error .error-message {
+    display: inline-block;
+}
+
 .rwd-table {
     margin: auto;
     min-width: 300px;
@@ -209,10 +239,14 @@ a.active, a:hover {
     padding-left: 20px;
 }
 
-    .rwd-table tr:first-child {
+    .rwd-table thead tr {
         border-top: none;
         background: #428bca;
         color: #fff;
+    }
+
+    .rwd-table .error {
+        color: red;
     }
 
     .rwd-table tr {
@@ -221,7 +255,7 @@ a.active, a:hover {
         background-color: #f5f9fc;
     }
 
-        .rwd-table tr:nth-child(odd):not(:first-child) {
+        .rwd-table tr:nth-child(even) {
             background-color: #ebf3f9;
         }
 
@@ -233,25 +267,25 @@ a.active, a:hover {
         display: block;
     }
 
-        .rwd-table td:first-child {
-            margin-top: .5em;
-        }
+    .rwd-table thead td {
+        margin-top: .5em;
+    }
 
-        .rwd-table td:last-child {
-            margin-bottom: .5em;
-        }
+    .rwd-table tbody td:last-child {
+        margin-bottom: .5em;
+    }
 
-        .rwd-table td:before {
-            content: attr(data-th) ": ";
-            font-weight: bold;
-            width: 120px;
-            display: inline-block;
-            color: #000;
-        }
+    .rwd-table td:before {
+        content: attr(data-th) ": ";
+        font-weight: bold;
+        width: 120px;
+        display: inline-block;
+        color: #000;
+    }
 
     .rwd-table th,
     .rwd-table td {
-        text-align: left;
+        text-align: center;
     }
 
 .rwd-table {
@@ -276,7 +310,7 @@ a.active, a:hover {
 }
 
 @media screen and (min-width: 600px) {
-    .rwd-table tr:hover:not(:first-child) {
+    .rwd-table tbody tr:hover {
         background-color: #d8e7f3;
     }
 
@@ -290,15 +324,15 @@ a.active, a:hover {
         padding: .25em .5em;
     }
 
-        .rwd-table th:first-child,
-        .rwd-table td:first-child {
-            padding-left: 0;
-        }
+    .rwd-table thead th,
+    .rwd-table thead td {
+        padding-left: 0;
+    }
 
-        .rwd-table th:last-child,
-        .rwd-table td:last-child {
-            padding-right: 0;
-        }
+    .rwd-table tbody th:last-child,
+    .rwd-table tbody td:last-child {
+        padding-right: 0;
+    }
 
     .rwd-table th,
     .rwd-table td {

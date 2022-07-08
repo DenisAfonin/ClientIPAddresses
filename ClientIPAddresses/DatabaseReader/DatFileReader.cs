@@ -42,8 +42,7 @@ namespace ClientIPAddresses.DatabaseReader
                 iPIntervall.LocationIndex = (uint)BitConverter.ToInt32(bytes, shiftFromOffset + 8);
             }
             Locations = new Location[recordsAmount];
-            LocationsDictionary =
-           new Dictionary<string, List<Location>>();
+            LocationsDictionary = new Dictionary<string, List<Location>>();
             for (var i = 0; i < recordsAmount; i++)
             {
                 var shiftIndex = i * 96;
@@ -96,13 +95,13 @@ namespace ClientIPAddresses.DatabaseReader
             var locationIndex = BinarySearchLocationIndexByIP(ip);
             if (LocationIndexes.Length - 1 < locationIndex)
             {
-                throw new Exception("Index not found");
+                throw new KeyNotFoundException("Location index not found");
             }
             var recordIndex = LocationIndexes[locationIndex];
             var location = Locations.FirstOrDefault(p => p.AddressIndexInFile == recordIndex);
             if (location == null)
             {
-                throw new Exception("Location not found");
+                throw new KeyNotFoundException("Location not found");
             }
             return new GEOInformation
             {
@@ -132,14 +131,14 @@ namespace ClientIPAddresses.DatabaseReader
                     minNum = mid + 1;
                 }
             }
-            throw new Exception("IP Interval not found");
+            throw new KeyNotFoundException("IP Interval not found");
         }
 
         public List<Location> GetLocationsByCity(string city)
         {
             if (!LocationsDictionary.ContainsKey(city))
             {
-                throw new Exception("City not found");
+                throw new KeyNotFoundException("City not found");
             }
             return LocationsDictionary[city];
         }

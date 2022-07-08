@@ -1,5 +1,6 @@
 using ClientIPAddresses.DatabaseReader;
 using ClientIPAddresses.Interfaces;
+using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,15 @@ using (var serviceScope = app.Services.CreateScope())
     var services = serviceScope.ServiceProvider;
     services.GetRequiredService<IDatFileReader>();
 }
+
+app.UseExceptionHandler(c => c.Run(async context =>
+{
+    var exception = context.Features
+        .Get<IExceptionHandlerPathFeature>()
+        .Error;
+    var response = new { error = exception.Message };
+    await context.Response.WriteAsJsonAsync(response);
+}));
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

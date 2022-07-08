@@ -22,28 +22,22 @@
         </a>
     </div>
     <div class="main">
-        <div id="ip" class="content">
-            <div class="form-wrapper">
-                <input type="text" id="searchip" placeholder="Введите IP">
+        <div class="content">
+            <div class="form-wrapper" id="ip_form">
+                <input type="text" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" id="searchip" placeholder="Введите IP">
                 <input type="submit" value="Искать" id="submitip" onclick="searchByIP()">
+                <div class="error-message">IP is invalid</div>
             </div>
             <div class="container">
-                <h1>Cootdinates</h1>
+                <h1>Coordinates</h1>
                 <table class="rwd-table">
-                    <tbody>
+                    <thead>
                         <tr>
                             <th>Latitude</th>
                             <th>Longitude</th>
                         </tr>
-                        <tr>
-                            <td data-th="Supplier Code">
-                                UPS5005
-                            </td>
-                            <td data-th="Supplier Name">
-                                UPS
-                            </td>
-                        </tr>
-                    </tbody>
+                    </thead>
+                    <tbody id="coordinates"></tbody>
                 </table>
             </div>
         </div>
@@ -55,7 +49,7 @@
             <div class="container">
                 <h1>Locations</h1>
                 <table class="rwd-table">
-                    <tbody>
+                    <thead>
                         <tr>
                             <th>Country</th>
                             <th>Region</th>
@@ -65,30 +59,8 @@
                             <th>Latitude</th>
                             <th>Longitude</th>
                         </tr>
-                        <tr>
-                            <td data-th="Supplier Code">
-                                UPS5005
-                            </td>
-                            <td data-th="Supplier Name">
-                                UPS
-                            </td>
-                            <td data-th="Invoice Number">
-                                ASDF19218
-                            </td>
-                            <td data-th="Invoice Date">
-                                06/25/2016
-                            </td>
-                            <td data-th="Due Date">
-                                12/25/2016
-                            </td>
-                            <td data-th="Net Amount">
-                                $8,322.12
-                            </td>
-                            <td data-th="Net">
-                                $8,322.12
-                            </td>
-                        </tr>
-                    </tbody>
+                    </thead>
+                    <tbody id="locations"></tbody>
                 </table>
             </div>
         </div>
