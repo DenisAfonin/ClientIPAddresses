@@ -1,5 +1,4 @@
 ﻿using ClientIPAddresses.Interfaces;
-using ClientIPAddresses.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClientIPAddresses.Controllers
@@ -14,15 +13,25 @@ namespace ClientIPAddresses.Controllers
         }
 
         [HttpGet("ip/location")]
-        public GEOInformation GetGEOInformationsByIP(string ip)
+        public IActionResult GetGEOInformationsByIP(string ip)
         {
-            return _datFileReader.GetGEOInformationsByIP(ip);
+            var result = _datFileReader.GetGEOInformationsByIP(ip);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
         }
 
         [HttpGet("city/locations")]
-        public List<Location> GetLocationsByCity(string city)
+        public IActionResult GetLocationsByCity(string city)
         {
-            return _datFileReader.GetLocationsByCity(city);
+            var result = _datFileReader.GetLocationsByCity(city);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿function searchByIP() {   
-    const Http = new XMLHttpRequest();
+﻿async function searchByIP() {
     let searchInput = document.getElementById("searchip");
     searchInput.style.borderColor = null;
     searchInput.style.borderWidth = null;
@@ -11,53 +10,56 @@
         ipForm.classList.add("error");
         return;
     }
-    // const url = '/ip/location?ip=123.234.123.234';
-    const url = '/ip/location?ip=' + searchInput.value;
-    Http.open("GET", url);
 
-    Http.onreadystatechange = (e) => {
-        if (Http.readyState === XMLHttpRequest.DONE) {
-            console.log(Http.responseText);
-            let location = JSON.parse(Http.responseText);
-            let tableBody = document.getElementById("coordinates");
-            if (Http.status === 200) {
-                tableBody.innerHTML = "<tr><td>" + location.latitude + "</td><td>" + location.longitude + "</td></tr>";
-            } else {
-                tableBody.innerHTML = "<tr><td colspan=2>" + JSON.parse(Http.responseText) + "</td></tr>";
-            }
+    const url = '/ip/location?ip=' + searchInput.value;
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
         }
+    });
+
+    let tableBody = document.getElementById("coordinates");
+
+    if (!response.ok) {
+        tableBody.innerHTML = "<tr><td colspan=2>Координаты не найдены</td></tr>";
+        return;
     }
-    Http.send();
+    let location = await response.json();
+    tableBody.innerHTML = "<tr><td>" + location.latitude + "</td><td>" + location.longitude + "</td></tr>";
 }
 
-function searchByCity() {
-    const Http = new XMLHttpRequest();
+async function searchByCity() {
     let searchInput = document.getElementById("searchcity");
     if (!searchInput.value)
         return;
     // const url = '/city/locations?city=cit_Gbqw4';
     // const url = '/city/locations?city=cit_Ejid';
     const url = '/city/locations?city=' + searchInput.value;
-    Http.open("GET", url);
 
-    Http.onreadystatechange = (e) => {
-        if (Http.readyState === XMLHttpRequest.DONE) {
-            console.log(Http.responseText);
-            let locations = JSON.parse(Http.responseText);
-            let tableBody = document.getElementById("locations");
-            if (Http.status === 200) {
-                tableBody.innerHTML = "";
-                Array.prototype.forEach.call(locations, location => {
-                    tableBody.innerHTML += "<tr><td>" + location.country + "</td><td>" + location.region + "</td><td>"
-                        + location.postal + "</td><td>" + location.city + "</td><td>" + location.organization + "</td><td>"
-                        + location.latitude + "</td><td>" + location.longitude + "</td></tr>";
-                });
-            } else {
-                tableBody.innerHTML = "<tr class='error'><td colspan=7>" + JSON.parse(Http.responseText).error + "</td></tr>";
-            }
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
         }
+    });
+
+    let tableBody = document.getElementById("locations");
+
+    if (!response.ok) {
+        tableBody.innerHTML = "<tr class='error'><td colspan=7>Местоположения не найдены</td></tr>";
+        return;
     }
-    Http.send();
+
+    let locations = await response.json();
+    console.log(locations);
+
+    tableBody.innerHTML = "";
+    Array.prototype.forEach.call(locations, location => {
+        tableBody.innerHTML += "<tr><td>" + location.country + "</td><td>" + location.region + "</td><td>"
+            + location.postal + "</td><td>" + location.city + "</td><td>" + location.organization + "</td><td>"
+            + location.latitude + "</td><td>" + location.longitude + "</td></tr>";
+    });
 }
 
 function showContent(id) {
@@ -72,4 +74,4 @@ function validateIPaddress(ipaddress) {
         return true;
     }
     return false;
-} 
+}

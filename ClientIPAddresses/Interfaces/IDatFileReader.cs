@@ -4,7 +4,7 @@ namespace ClientIPAddresses.Interfaces
 {
     public interface IDatFileReader
     {
-        GEOInformation GetGEOInformationsByIP(string ipString);
-        List<Location> GetLocationsByCity(string city);
+        GEOInformation? GetGEOInformationsByIP(string ipString);
+        List<Location>? GetLocationsByCity(string city);
     }
 }
