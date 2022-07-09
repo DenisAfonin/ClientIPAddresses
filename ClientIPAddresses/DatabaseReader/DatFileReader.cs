@@ -8,6 +8,11 @@ namespace ClientIPAddresses.DatabaseReader
 {
     public class DatFileReader : IDatFileReader
     {
+        private IPIntervall[] iPIntervalls;
+        private Location[] locations;
+        private int[] locationIndexes;
+        private Dictionary<string, List<Location>> locationsDictionary = new Dictionary<string, List<Location>>();
+
         public DatFileReader()
         {
             //var start = Stopwatch.GetTimestamp();
@@ -133,11 +138,6 @@ namespace ClientIPAddresses.DatabaseReader
                 return null;
             }
             return locationsDictionary[city];
-        }
-
-        private IPIntervall[] iPIntervalls;
-        private Location[] locations;
-        private int[] locationIndexes;
-        private Dictionary<string, List<Location>> locationsDictionary = new Dictionary<string, List<Location>>();
+        }       
     }
 }

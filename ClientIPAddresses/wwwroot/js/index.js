@@ -1,17 +1,24 @@
-﻿async function searchByIP() {
+﻿let previousCity = '';
+let previousIP = '';
+
+async function searchByIP() {
     let searchInput = document.getElementById("searchip");
+    let searchInputValue = searchInput.value;
+    if (searchInputValue === previousIP)
+        return;
+    previousIP = searchInputValue;
     searchInput.style.borderColor = null;
     searchInput.style.borderWidth = null;
     let ipForm = document.getElementById("ip_form");
     ipForm.classList.remove("error");
-    if (!validateIPaddress(searchInput.value)) {
+    if (!validateIPaddress(searchInputValue)) {
         searchInput.style.borderColor = "#c00000";
         searchInput.style.borderWidth = "2px";
         ipForm.classList.add("error");
         return;
     }
 
-    const url = '/ip/location?ip=' + searchInput.value;
+    const url = '/ip/location?ip=' + searchInputValue;
     const response = await getResponse(url);
     let tableBody = document.getElementById("coordinates");
 
@@ -25,11 +32,12 @@
 
 async function searchByCity() {
     let searchInput = document.getElementById("searchcity");
-    if (!searchInput.value)
+    let searchInputValue = searchInput.value;
+    if (!searchInputValue || searchInputValue == previousCity)
         return;
     // const url = '/city/locations?city=cit_Gbqw4';
     // const url = '/city/locations?city=cit_Ejid';
-    const url = '/city/locations?city=' + searchInput.value;
+    const url = '/city/locations?city=' + searchInputValue;
     const response = await getResponse(url);
     let tableBody = document.getElementById("locations");
 
@@ -39,8 +47,6 @@ async function searchByCity() {
     }
 
     const locations = await response.json();
-    console.log(locations);
-
     tableBody.innerHTML = "";
     Array.prototype.forEach.call(locations, location => {
         tableBody.innerHTML += "<tr><td>" + location.country + "</td><td>" + location.region + "</td><td>"
