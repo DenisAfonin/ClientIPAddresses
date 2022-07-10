@@ -248,6 +248,10 @@ h1 {
     display: inline-block;
 }
 
+div.hidden {
+    display: none;
+}
+
 .rwd-table {
     margin: auto;
     min-width: 300px;

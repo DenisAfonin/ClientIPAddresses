@@ -72,9 +72,9 @@
         for (let i = 0; i < contents.length; i++) {
             let content = contents[i];
             if (itemName == content.getAttribute('id'))
-                content.style.display = 'block';
+                content.classList.remove("hidden");
             else
-                content.style.display = 'none';
+                content.classList.add("hidden");
         }
     }
 
