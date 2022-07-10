@@ -1,12 +1,10 @@
 ﻿(() => {
     let previousCity = '';
     let previousIP = '';
-    let ipForm;
-    let cityForm;
 
     window.onload = () => {
-        ipForm = document.forms.ip;
-        cityForm = document.forms.city;
+        let ipForm = document.forms.ip;
+        let cityForm = document.forms.city;
         ipForm.addEventListener("submit", searchByIP);
         cityForm.addEventListener("submit", searchByCity);
 
@@ -17,14 +15,14 @@
     }
 
     async function searchByIP() {
-        let searchInput = ipForm.elements.search;
+        let searchInput = this.elements.search;
         let searchInputValue = searchInput.value;
         if (searchInputValue === previousIP)
             return;
         previousIP = searchInputValue;
-        ipForm.classList.remove("error");
+        this.classList.remove("error");
         if (!validateIPaddress(searchInputValue)) {
-            ipForm.classList.add("error");
+            this.classList.add("error");
             return;
         }
 
@@ -41,7 +39,7 @@
     }
 
     async function searchByCity() {
-        let searchInput = cityForm.elements.search;
+        let searchInput = this.elements.search;
         let searchInputValue = searchInput.value;
         if (!searchInputValue || searchInputValue == previousCity)
             return;
