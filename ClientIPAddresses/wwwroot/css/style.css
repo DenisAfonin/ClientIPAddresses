@@ -7,6 +7,18 @@
     font-family: 'Open Sans', sans-serif;
 }
 
+body {
+    background: #4B79A1;
+    background: -webkit-linear-gradient(to left, #4B79A1, #283E51);
+    background: linear-gradient(to left, #4B79A1, #283E51);
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.4em;
+    color: #f2f2f2;
+}
+
 .sidebar {
     position: fixed;
     width: 240px;
@@ -41,7 +53,7 @@
         transition: all .5s ease;
     }
 
-a.active, a:hover {
+.menu-item.active, a:hover {
     border-left: 5px solid #b93632;
     color: #b93632;
 }
@@ -127,7 +139,7 @@ a.active, a:hover {
     width: 450px;
 }
 
-    .form-wrapper #searchip, #searchcity {
+    .form-wrapper .searchinput {
         border: 1px solid #CCC;
         -webkit-box-shadow: 0 1px 1px #ddd inset, 0 1px 0 #FFF;
         -moz-box-shadow: 0 1px 1px #ddd inset, 0 1px 0 #FFF;
@@ -144,7 +156,7 @@ a.active, a:hover {
         float: left;
     }
 
-        .form-wrapper #searchip, #searchcity:focus {
+        .form-wrapper .searchinput:focus {
             border-color: #aaa;
             -webkit-box-shadow: 0 1px 1px #bbb inset;
             -moz-box-shadow: 0 1px 1px #bbb inset;
@@ -152,14 +164,14 @@ a.active, a:hover {
             outline: 0;
         }
 
-        .form-wrapper #searchip, #searchcity:-moz-placeholder,
-        .form-wrapper #searchip, #searchcity:-ms-input-placeholder,
-        .form-wrapper #searchip, #searchcity::-webkit-input-placeholder {
+        .form-wrapper .searchinput:-moz-placeholder,
+        .form-wrapper .searchinput:-ms-input-placeholder,
+        .form-wrapper .searchinput::-webkit-input-placeholder {
             color: #999;
             font-weight: normal;
         }
 
-    .form-wrapper #submitip, #submitcity {
+    .form-wrapper .submit {
         background-color: #0483a0;
         background-image: -webkit-gradient(linear, left top, left bottom, from(#31b2c3), to(#0483a0));
         background-image: -webkit-linear-gradient(top, #31b2c3, #0483a0);
@@ -185,8 +197,8 @@ a.active, a:hover {
         width: 100px;
     }
 
-        .form-wrapper #submitip, #submitcity:hover,
-        .form-wrapper #submitip, #submitcity:focus {
+        .form-wrapper .submit:hover,
+        .form-wrapper .submit:focus {
             background-color: #31b2c3;
             background-image: -webkit-gradient(linear, left top, left bottom, from(#0483a0), to(#31b2c3));
             background-image: -webkit-linear-gradient(top, #0483a0, #31b2c3);
@@ -196,14 +208,14 @@ a.active, a:hover {
             background-image: linear-gradient(top, #0483a0, #31b2c3);
         }
 
-        .form-wrapper #submitip, #submitcity:active {
+        .form-wrapper .submit:active {
             -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) inset;
             -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) inset;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) inset;
             outline: 0;
         }
 
-        .form-wrapper #submitip, #submitcity::-moz-focus-inner {
+        .form-wrapper .submit::-moz-focus-inner {
             border: 0;
         }
 
@@ -219,6 +231,11 @@ a.active, a:hover {
 
 .form-wrapper .error-message {
     display: none;
+}
+
+.searchinput:invalid {
+    border-color: #c00000;
+    border-width: 2px;
 }
 
 .error input[type=text] {
@@ -338,22 +355,6 @@ a.active, a:hover {
     .rwd-table td {
         padding: 1em !important;
     }
-}
-
-
-/* THE END OF THE IMPORTANT STUFF */
-
-/* Basic Styling */
-body {
-    background: #4B79A1;
-    background: -webkit-linear-gradient(to left, #4B79A1, #283E51);
-    background: linear-gradient(to left, #4B79A1, #283E51);
-}
-
-h1 {
-    text-align: center;
-    font-size: 2.4em;
-    color: #f2f2f2;
 }
 
 .container {

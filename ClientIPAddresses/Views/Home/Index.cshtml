@@ -1,9 +1,7 @@
 ﻿<!DOCTYPE html>
-<!-- Created By CodingNepal -->
 <html lang="en" dir="ltr">
 <head>
     <meta charset="utf-8">
-    <!-- <title>Responsive Sidebar Menu</title> -->
     <link rel="stylesheet" href="css/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
@@ -12,22 +10,23 @@
 <body>
     <div class="sidebar">
         <header>Поиск</header>
-        <a href="#" onclick="showContent('ip')">
+        <a class="menu-item" href="#" item="ip">
             <i class="fas fa-stream"></i>
             <span>по IP</span>
         </a>
-        <a href="#" onclick="showContent('city')">
+        <a class="menu-item" href="#" item="city">
             <i class="fas fa-sliders-h"></i>
             <span>по городу</span>
         </a>
     </div>
     <div class="main">
         <div class="content" id="ip">
-            <div class="form-wrapper" id="ip_form">
-                <input type="text" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" id="searchip" placeholder="Введите IP">
-                <input type="submit" value="Искать" id="submitip" onclick="searchByIP()">
+            <form class="form-wrapper" name="ip" onsubmit="return false" novalidate>
+                <input name="search" type="text" minlength="7" maxlength="15" size="15" placeholder="Введите IP" class="searchinput"
+                    pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+                <input type="submit" class="submit" value="Искать">
                 <div class="error-message">IP is invalid</div>
-            </div>
+            </form>
             <div class="container">
                 <h1>Координаты</h1>
                 <table class="rwd-table">
@@ -42,10 +41,10 @@
             </div>
         </div>
         <div id="city" style="display:none" class="content">
-            <div class="form-wrapper">
-                <input type="text" id="searchcity" placeholder="Введите название города">
-                <input type="submit" value="Искать" id="submitcity" onclick="searchByCity()">
-            </div>
+            <form class="form-wrapper" name="city" onsubmit="return false" novalidate>
+                <input name="search" class="searchinput" type="text" placeholder="Введите название города">
+                <input type="submit" class="submit" value="Искать">
+            </form>
             <div class="container">
                 <h1>Список местоположений</h1>
                 <table class="rwd-table">
