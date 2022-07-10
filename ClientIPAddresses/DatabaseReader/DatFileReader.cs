@@ -27,38 +27,42 @@ namespace ClientIPAddresses.DatabaseReader
             //var timespan = end - start;
             //var elapsedSpan = new TimeSpan(timespan);
             //var ms = elapsedSpan.TotalMilliseconds;
-            var recordsAmount = BitConverter.ToInt32(bytes, 44);
+           
+            var recordsAmount = BitConverter.ToInt32(bytes, 44); //44 is position in byte array
             var offsetRanges = BitConverter.ToUInt32(bytes, 48);
             var offsetCities = BitConverter.ToUInt32(bytes, 52);
             var offsetLocations = BitConverter.ToUInt32(bytes, 56);
             iPIntervalls = new IPIntervall[recordsAmount];
             for (var i = 0; i < recordsAmount; i++)
             {
-                var shiftIndex = i * 12;
-                var shiftFromOffset = (int)offsetRanges + shiftIndex;
+                var bytesInRecord = 96;
+                var recordShiftFromTableStart = i * bytesInRecord;
+                var recordShiftFromFileStart = (int)offsetRanges + recordShiftFromTableStart;
                 iPIntervalls[i] = new IPIntervall
                 {
-                    IPFrom = BitConverter.ToUInt32(bytes, shiftFromOffset),
-                    IPTo = BitConverter.ToUInt32(bytes, shiftFromOffset + 4),
-                    LocationIndex = BitConverter.ToUInt32(bytes, shiftFromOffset + 8)
+                    IPFrom = BitConverter.ToUInt32(bytes, recordShiftFromFileStart),
+                    IPTo = BitConverter.ToUInt32(bytes, recordShiftFromFileStart + 4), //4 is position in byte array in this record
+                    LocationIndex = BitConverter.ToUInt32(bytes, recordShiftFromFileStart + 8)
                 };
             }
             locations = new Location[recordsAmount];
 
             for (var i = 0; i < recordsAmount; i++)
             {
-                var shiftIndex = i * 96;
-                var shiftFromOffset = (int)offsetLocations + shiftIndex;
+                var bytesInRecord = 96;
+                var recordShiftFromTableStart = i * bytesInRecord;
+                var recordShiftFromFileStart = (int)offsetLocations + recordShiftFromTableStart;
                 var location = locations[i] = new Location
                 {
-                    AddressIndexInFile = shiftIndex,
-                    Country = Encoding.Default.GetString(bytes, shiftFromOffset, 8).TrimEnd('\0'),
-                    Region = Encoding.Default.GetString(bytes, shiftFromOffset + 8, 12).TrimEnd('\0'),
-                    Postal = Encoding.Default.GetString(bytes, shiftFromOffset + 20, 12).TrimEnd('\0'),
-                    City = Encoding.Default.GetString(bytes, shiftFromOffset + 32, 24).TrimEnd('\0'),
-                    Organization = Encoding.Default.GetString(bytes, shiftFromOffset + 56, 32).TrimEnd('\0'),
-                    Latitude = BitConverter.ToSingle(bytes, shiftFromOffset + 88),
-                    Longitude = BitConverter.ToSingle(bytes, shiftFromOffset + 92)
+                    AddressIndexInFile = recordShiftFromTableStart,
+                    Country = Encoding.Default.GetString(bytes, recordShiftFromFileStart, 8).TrimEnd('\0'), // 8 is bytes amount for string
+                    Region = Encoding.Default.GetString(bytes, recordShiftFromFileStart + 8, 12).TrimEnd('\0'),
+                    //8 is position in byte array in this record; 12 is bytes amount for string
+                    Postal = Encoding.Default.GetString(bytes, recordShiftFromFileStart + 20, 12).TrimEnd('\0'),
+                    City = Encoding.Default.GetString(bytes, recordShiftFromFileStart + 32, 24).TrimEnd('\0'),
+                    Organization = Encoding.Default.GetString(bytes, recordShiftFromFileStart + 56, 32).TrimEnd('\0'),
+                    Latitude = BitConverter.ToSingle(bytes, recordShiftFromFileStart + 88),
+                    Longitude = BitConverter.ToSingle(bytes, recordShiftFromFileStart + 92)
                 };
                 if (locationsDictionary.ContainsKey(location.City))
                 {

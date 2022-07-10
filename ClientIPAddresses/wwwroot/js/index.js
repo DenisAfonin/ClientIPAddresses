@@ -20,12 +20,12 @@
         if (searchInputValue === previousIP)
             return;
         previousIP = searchInputValue;
-        this.classList.remove("error");
         if (!validateIPaddress(searchInputValue)) {
             this.classList.add("error");
             return;
         }
 
+        this.classList.remove("error");
         const url = '/ip/location?ip=' + searchInputValue;
         const response = await getResponse(url);
 
