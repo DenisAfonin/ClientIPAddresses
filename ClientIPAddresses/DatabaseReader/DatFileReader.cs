@@ -35,7 +35,7 @@ namespace ClientIPAddresses.DatabaseReader
             iPIntervalls = new IPIntervall[recordsAmount];
             for (var i = 0; i < recordsAmount; i++)
             {
-                var bytesInRecord = 96;
+                var bytesInRecord = 12;
                 var recordShiftFromTableStart = i * bytesInRecord;
                 var recordShiftFromFileStart = (int)offsetRanges + recordShiftFromTableStart;
                 iPIntervalls[i] = new IPIntervall

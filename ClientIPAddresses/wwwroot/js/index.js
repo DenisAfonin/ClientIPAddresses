@@ -31,7 +31,7 @@
 
         let tableBody = document.getElementById("coordinates");
         if (!response.ok) {
-            tableBody.innerHTML = "<tr><td colspan=2>Координаты не найдены</td></tr>";
+            tableBody.innerHTML = "<tr class='error'><td colspan=2>Координаты не найдены</td></tr>";
             return;
         }
         const location = await response.json();
