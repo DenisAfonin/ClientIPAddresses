@@ -14,7 +14,6 @@ namespace ClientIPAddresses.DatabaseReader
         private int[] locationIndexes;
         public unsafe DatFileReader()
         {
-            var start = Stopwatch.GetTimestamp();
             var bytes = File.ReadAllBytes(@"..\ClientIPAddresses\geobase.dat");
 
             fixed (byte* p = bytes)
@@ -36,10 +35,6 @@ namespace ClientIPAddresses.DatabaseReader
                     IntPtr newPtr = IntPtr.Add(ptr, (int)obj.OffsetCities + i * 4);
                     locationIndexes[i] = Marshal.ReadInt32(newPtr);
                 }
-                long end = Stopwatch.GetTimestamp();
-                var timespan = end - start;
-                var elapsedSpan = new TimeSpan(timespan);
-                var ms = elapsedSpan.TotalMilliseconds;
             }
         }
 
