@@ -1,6 +1,6 @@
 ﻿(() => {
-    let previousCity = '';
-    let previousIP = '';
+    let previousCity;
+    let previousIP;
 
     window.onload = () => {
         let ipForm = document.forms.ip;
@@ -9,18 +9,19 @@
         cityForm.addEventListener("submit", searchByCity);
 
         var menuItems = document.getElementsByClassName("menu-item");
-        for (var i = 0; i < menuItems.length; i++) {
-            menuItems[i].addEventListener('click', showContent);
+        for (let menuItem of menuItems) {
+            menuItem.addEventListener('click', showContent);
         }
     }
 
-    async function searchByIP() {
+    async function searchByIP(e) {
+        e.preventDefault();
         let searchInput = this.elements.search;
         let searchInputValue = searchInput.value;
         if (searchInputValue === previousIP)
             return;
         previousIP = searchInputValue;
-        if (!validateIPaddress(searchInputValue)) {
+        if (searchInputValue === "" || !validateIPaddress(searchInputValue)) {
             this.classList.add("error");
             return;
         }
@@ -38,7 +39,8 @@
         tableBody.innerHTML = "<tr><td>" + location.latitude + "</td><td>" + location.longitude + "</td></tr>";
     }
 
-    async function searchByCity() {
+    async function searchByCity(e) {
+        e.preventDefault();
         let searchInput = this.elements.search;
         let searchInputValue = searchInput.value;
         if (!searchInputValue || searchInputValue == previousCity)
@@ -56,8 +58,7 @@
 
         const locations = await response.json();
         tableBody.innerHTML = "";
-        for (let i = 0; i < locations.length; i++) {
-            let location = locations[i];
+        for (let location of locations) {
             tableBody.innerHTML += "<tr><td>" + location.country + "</td><td>" + location.region + "</td><td>"
                 + location.postal + "</td><td>" + location.city + "</td><td>" + location.organization + "</td><td>"
                 + location.latitude + "</td><td>" + location.longitude + "</td></tr>";
@@ -65,10 +66,9 @@
     }
 
     function showContent() {
-        var itemName = this.getAttribute("item");
+        var itemName = this.getAttribute("data-item");
         let contents = document.getElementsByClassName('content');
-        for (let i = 0; i < contents.length; i++) {
-            let content = contents[i];
+        for (let content of contents) {
             if (itemName == content.getAttribute('id'))
                 content.classList.remove("hidden");
             else

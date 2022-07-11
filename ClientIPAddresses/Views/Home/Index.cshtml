@@ -10,20 +10,19 @@
 <body>
     <div class="sidebar">
         <header>Поиск</header>
-        <a class="menu-item" href="#" item="ip">
+        <a class="menu-item" href="#" data-item="ip">
             <i class="fas fa-stream"></i>
             <span>по IP</span>
         </a>
-        <a class="menu-item" href="#" item="city">
+        <a class="menu-item" href="#" data-item="city">
             <i class="fas fa-sliders-h"></i>
             <span>по городу</span>
         </a>
     </div>
     <div class="main">
         <div class="content" id="ip">
-            <form class="form-wrapper" name="ip" onsubmit="return false" novalidate>
-                <input name="search" type="text" minlength="7" maxlength="15" size="15" placeholder="Введите IP" class="searchinput"
-                    pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+            <form class="form-wrapper" name="ip" novalidate>
+                <input name="search" type="text" placeholder="Введите IP" class="searchinput">
                 <input type="submit" class="submit" value="Искать">
                 <div class="error-message">IP невалидный</div>
             </form>
@@ -41,8 +40,8 @@
             </div>
         </div>
         <div id="city" class="content hidden">
-            <form class="form-wrapper" name="city" onsubmit="return false" novalidate>
-                <input name="search" class="searchinput" type="text" placeholder="Введите название города">
+            <form class="form-wrapper" name="city">
+                <input name="search" class="searchinput" type="text" placeholder="Введите название города" required>
                 <input type="submit" class="submit" value="Искать">
             </form>
             <div class="container">
