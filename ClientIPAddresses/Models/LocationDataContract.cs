@@ -1,6 +1,6 @@
 ﻿namespace ClientIPAddresses.Models
 {
-    public class Location
+    public class LocationDataContract
     {
         public string Country { get; set; }        // название страны (случайная строка с префиксом "cou_")
         public string Region { get; set; }        // название области (случайная строка с префиксом "reg_")

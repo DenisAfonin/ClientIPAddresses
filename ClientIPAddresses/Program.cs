@@ -6,14 +6,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-//builder.Services.AddSingleton<IDatFileReader, DatFileReader>();
-builder.Services.AddSingleton<IDatMarshReader, DatMarshReader>();
+builder.Services.AddSingleton<IDatFileReader, DatFileReader>();
 
 var app = builder.Build();
 using (var serviceScope = app.Services.CreateScope())
 {
     var services = serviceScope.ServiceProvider;
-    services.GetRequiredService<IDatMarshReader>();
+    services.GetRequiredService<IDatFileReader>();
 }
 
 app.UseExceptionHandler(c => c.Run(async context =>

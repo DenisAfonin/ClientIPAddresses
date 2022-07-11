@@ -57,6 +57,10 @@
         }
 
         const locations = await response.json();
+        if (locations.length < 1) {
+            tableBody.innerHTML = "<tr class='error'><td colspan=7>Местоположения не найдены</td></tr>";
+            return;
+        }
         tableBody.innerHTML = "";
         for (let location of locations) {
             tableBody.innerHTML += "<tr><td>" + location.country + "</td><td>" + location.region + "</td><td>"

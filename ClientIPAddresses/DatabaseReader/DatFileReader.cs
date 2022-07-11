@@ -1,8 +1,9 @@
 ﻿using ClientIPAddresses.Interfaces;
 using ClientIPAddresses.Models;
+using ClientIPAddresses.Models.Structures;
 using System.Diagnostics;
 using System.Net;
-using System.Text;
+using System.Runtime.InteropServices;
 
 namespace ClientIPAddresses.DatabaseReader
 {
@@ -11,71 +12,38 @@ namespace ClientIPAddresses.DatabaseReader
         private IPIntervall[] iPIntervalls;
         private Location[] locations;
         private int[] locationIndexes;
-        private Dictionary<string, List<Location>> locationsDictionary = new Dictionary<string, List<Location>>();
-
-        public DatFileReader()
+        public unsafe DatFileReader()
         {
             var start = Stopwatch.GetTimestamp();
             var bytes = File.ReadAllBytes(@"..\ClientIPAddresses\geobase.dat");
 
-            long end = Stopwatch.GetTimestamp();
-            var timespan = end - start;
-            var elapsedSpan = new TimeSpan(timespan);
-            var ms = elapsedSpan.TotalMilliseconds;
-            var recordsAmount = BitConverter.ToInt32(bytes, 44); //44 is position in byte array
-            var offsetRanges = BitConverter.ToUInt32(bytes, 48);
-            var offsetCities = BitConverter.ToUInt32(bytes, 52);
-            var offsetLocations = BitConverter.ToUInt32(bytes, 56);
-            iPIntervalls = new IPIntervall[recordsAmount];
-            for (var i = 0; i < recordsAmount; i++)
+            fixed (byte* p = bytes)
             {
-                var bytesInRecord = 12;
-                var recordShiftFromTableStart = i * bytesInRecord;
-                var recordShiftFromFileStart = (int)offsetRanges + recordShiftFromTableStart;
-                iPIntervalls[i] = new IPIntervall
-                {
-                    IPFrom = BitConverter.ToUInt32(bytes, recordShiftFromFileStart),
-                    IPTo = BitConverter.ToUInt32(bytes, recordShiftFromFileStart + 4), //4 is position in byte array in this record
-                    LocationIndex = BitConverter.ToUInt32(bytes, recordShiftFromFileStart + 8)
-                };
-            }
-            locations = new Location[recordsAmount];
+                IntPtr ptr = (IntPtr)p;
+                PacketHeader obj = (PacketHeader)Marshal.PtrToStructure(ptr, typeof(PacketHeader));
 
-            for (var i = 0; i < recordsAmount; i++)
-            {
-                var bytesInRecord = 96;
-                var recordShiftFromTableStart = i * bytesInRecord;
-                var recordShiftFromFileStart = (int)offsetLocations + recordShiftFromTableStart;
-                var location = locations[i] = new Location
+                iPIntervalls = new IPIntervall[obj.Records];
+                locations = new Location[obj.Records];
+                locationIndexes = new int[obj.Records];
+                for (var i = 0; i < obj.Records; i++)
                 {
-                    AddressIndexInFile = recordShiftFromTableStart,
-                    Country = Encoding.Default.GetString(bytes, recordShiftFromFileStart, 8).TrimEnd('\0'), // 8 is bytes amount for string
-                    Region = Encoding.Default.GetString(bytes, recordShiftFromFileStart + 8, 12).TrimEnd('\0'),
-                    //8 is position in byte array in this record; 12 is bytes amount for string
-                    Postal = Encoding.Default.GetString(bytes, recordShiftFromFileStart + 20, 12).TrimEnd('\0'),
-                    City = Encoding.Default.GetString(bytes, recordShiftFromFileStart + 32, 24).TrimEnd('\0'),
-                    Organization = Encoding.Default.GetString(bytes, recordShiftFromFileStart + 56, 32).TrimEnd('\0'),
-                    Latitude = BitConverter.ToSingle(bytes, recordShiftFromFileStart + 88),
-                    Longitude = BitConverter.ToSingle(bytes, recordShiftFromFileStart + 92)
-                };
-                if (locationsDictionary.ContainsKey(location.City))
-                {
-                    locationsDictionary[location.City].Add(location);
-                }
-                else
-                {
-                    locationsDictionary.Add(location.City, new List<Location> { location });
-                }
-            }
+                    IntPtr newLocPtr = IntPtr.Add(ptr, (int)obj.OffsetRanges + i * 12);
+                    iPIntervalls[i] = (IPIntervall)Marshal.PtrToStructure(newLocPtr, typeof(IPIntervall));
 
-            locationIndexes = new int[recordsAmount];
-            for (var i = 0; i < recordsAmount; i++)
-            {
-                locationIndexes[i] = BitConverter.ToInt32(bytes, (int)(offsetCities + i * 4));
+                    IntPtr newCorPtr = IntPtr.Add(ptr, (int)obj.OffsetLocations + i * 96);
+                    locations[i] = (Location)Marshal.PtrToStructure(newCorPtr, typeof(Location));
+
+                    IntPtr newPtr = IntPtr.Add(ptr, (int)obj.OffsetCities + i * 4);
+                    locationIndexes[i] = Marshal.ReadInt32(newPtr);
+                }
+                long end = Stopwatch.GetTimestamp();
+                var timespan = end - start;
+                var elapsedSpan = new TimeSpan(timespan);
+                var ms = elapsedSpan.TotalMilliseconds;
             }
         }
 
-        public GEOInformation? GetGEOInformationsByIP(string ipString)
+        public GEOInformationDataContract? GetGEOInformationsByIP(string ipString)
         {
             bool isIPValid = IPAddress.TryParse(ipString, out IPAddress ipAddress);
             if (!isIPValid)
@@ -93,12 +61,8 @@ namespace ClientIPAddresses.DatabaseReader
                 return null;
             }
             var recordIndex = locationIndexes[locationIndex.Value];
-            var location = locations.FirstOrDefault(p => p.AddressIndexInFile == recordIndex);
-            if (location == null)
-            {
-                return null;
-            }
-            return new GEOInformation
+            var location = locations[recordIndex / 96];
+            return new GEOInformationDataContract
             {
                 Latitude = location.Latitude,
                 Longitude = location.Longitude,
@@ -129,13 +93,18 @@ namespace ClientIPAddresses.DatabaseReader
             return null;
         }
 
-        public List<Location>? GetLocationsByCity(string city)
+        public List<LocationDataContract> GetLocationsByCity(string city)
         {
-            if (!locationsDictionary.ContainsKey(city))
+            return locations.Where(p => p.GetCity() == city).Select(p => new LocationDataContract
             {
-                return null;
-            }
-            return locationsDictionary[city];
+                City = city,
+                Country = p.GetCountry(),
+                Latitude = p.Latitude,
+                Longitude = p.Longitude,
+                Organization = p.GetOrg(),
+                Postal = p.GetPostal(),
+                Region = p.GetRegion(),
+            }).ToList();
         }
     }
 }
