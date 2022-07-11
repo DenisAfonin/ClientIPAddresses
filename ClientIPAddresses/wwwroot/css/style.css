@@ -233,7 +233,7 @@ h1 {
     display: none;
 }
 
-.searchinput:invalid {
+.error .searchinput {
     border-color: #c00000;
     border-width: 2px;
 }
