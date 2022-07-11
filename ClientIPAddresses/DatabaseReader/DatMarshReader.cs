@@ -101,8 +101,7 @@ namespace ClientIPAddresses.DatabaseReader
     unsafe struct PacketHeader
     {
         int version;           // версия база данных
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        string name;          // название/префикс для базы данных
+        fixed sbyte name[32];          // название/префикс для базы данных
         ulong timestamp;         // время создания базы данных
         public int records;           // общее количество записей
         public uint offset_ranges;     // смещение относительно начала файла до начала списка записей с геоинформацией
@@ -119,16 +118,11 @@ namespace ClientIPAddresses.DatabaseReader
 
     unsafe struct CoordH
     {
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
-        string country;        // название страны (случайная строка с префиксом "cou_")
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 12)]
-        string region;        // название области (случайная строка с префиксом "reg_")
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 12)]
-        string postal;        // почтовый индекс (случайная строка с префиксом "pos_")
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 24)]
-        string city;          // название города (случайная строка с префиксом "cit_")
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        string organization;  // название организации (случайная строка с префиксом "org_")
+        fixed sbyte country[8];        // название страны (случайная строка с префиксом "cou_")
+        fixed sbyte region[12];        // название области (случайная строка с префиксом "reg_")
+        fixed sbyte postal[12];        // почтовый индекс (случайная строка с префиксом "pos_")
+        fixed sbyte city[24];          // название города (случайная строка с префиксом "cit_")
+        fixed sbyte organization[32];  // название организации (случайная строка с префиксом "org_")
         float latitude;          // широта
         float longitude;         // долгота
     }
