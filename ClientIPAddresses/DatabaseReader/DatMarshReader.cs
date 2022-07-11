@@ -35,17 +35,70 @@ namespace ClientIPAddresses.DatabaseReader
                 {
                     var shift = i * 4;
                     IntPtr newPtr = IntPtr.Add(ptr, (int)obj.offset_cities + shift);
-                    ind[i] = Marshal.ReadInt32(newPtr);
+                    coords[i] = (CoordH)Marshal.PtrToStructure(newPtr, typeof(CoordH));
                 }
                 long end = Stopwatch.GetTimestamp();
                 var timespan = end - start;
                 var elapsedSpan = new TimeSpan(timespan);
                 var ms = elapsedSpan.TotalMilliseconds;
             }
+           
+
+        }
+
+        //private Object ByteArrayToObject(byte[] arrBytes)
+        //{
+        //    MemoryStream memStream = new MemoryStream();
+        //    BinaryFormatter binForm = new BinaryFormatter();
+        //    memStream.Write(arrBytes, 0, arrBytes.Length);
+        //    memStream.Seek(0, SeekOrigin.Begin);
+        //    Object obj = (Object)binForm.Deserialize(memStream);
+        //    return obj;
+        //}
+
+        //unsafe void Load(byte[] buffer, int offset, int length)
+        //{
+        //    fixed (byte* ptr = buffer)
+        //    {
+        //        PacketHeader* data = (PacketHeader*)(ptr + 0);
+        //        var results = new IPIntervall[60 / sizeof(PacketHeader)];
+        //        var result = new IPIntervall();
+        //        //for (int i = 0; i < results.Length; i++)
+        //        //{
+        //        //    results[i] = new IPIntervall();
+        //        //    data++;
+        //        //}
+        //        var a = result;
+        //    }
+        //}
+
+        private unsafe object BytesToDataStruct(byte[] bytes, Type type)
+        {
+
+            //int size = Marshal.SizeOf(type);
+
+            //if (size > bytes.Length)
+            //{
+            //    return null;
+            //}
+
+            //IntPtr unmanagedPointer = Marshal.AllocHGlobal(bytes.Length);
+            //Marshal.Copy(bytes, 0, unmanagedPointer, bytes.Length);
+            //// Call unmanaged code
+            //Marshal.FreeHGlobal(unmanagedPointer);
+
+            //IntPtr structPtr = Marshal.AllocHGlobal(size);
+            //Marshal.Copy(bytes, 0, structPtr, size);
+            //object obj = Marshal.PtrToStructure(structPtr, type);
+            //Marshal.FreeHGlobal(structPtr);
+            //return obj;
+
+            return null;
         }
     }
-  
-    struct PacketHeader
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    unsafe struct PacketHeader
     {
         int version;           // версия база данных
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
@@ -57,14 +110,14 @@ namespace ClientIPAddresses.DatabaseReader
         public uint offset_locations;  // смещение относительно начала файла до начала списка записей о местоположении       
     };
 
-    struct LocationH
+    unsafe struct LocationH
     {
         uint ip_from;           // начало диапазона IP адресов
         uint ip_to;             // конец диапазона IP адресов
         uint location_index;    // индекс записи о местоположении
     }
 
-    struct CoordH
+    unsafe struct CoordH
     {
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
         string country;        // название страны (случайная строка с префиксом "cou_")
