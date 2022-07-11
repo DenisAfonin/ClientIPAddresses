@@ -15,19 +15,13 @@ namespace ClientIPAddresses.DatabaseReader
 
         public DatFileReader()
         {
-            //var start = Stopwatch.GetTimestamp();
-            byte[] bytes;
-            using (var fileStream = new FileStream(@"..\ClientIPAddresses\geobase.dat", FileMode.Open, FileAccess.Read))
-            {
-                long length = fileStream.Length;
-                bytes = new byte[length];
-                fileStream.Read(bytes, 0, bytes.Length);
-            }
-            //long end = Stopwatch.GetTimestamp();
-            //var timespan = end - start;
-            //var elapsedSpan = new TimeSpan(timespan);
-            //var ms = elapsedSpan.TotalMilliseconds;
-           
+            var start = Stopwatch.GetTimestamp();
+            var bytes = File.ReadAllBytes(@"..\ClientIPAddresses\geobase.dat");
+
+            long end = Stopwatch.GetTimestamp();
+            var timespan = end - start;
+            var elapsedSpan = new TimeSpan(timespan);
+            var ms = elapsedSpan.TotalMilliseconds;
             var recordsAmount = BitConverter.ToInt32(bytes, 44); //44 is position in byte array
             var offsetRanges = BitConverter.ToUInt32(bytes, 48);
             var offsetCities = BitConverter.ToUInt32(bytes, 52);
@@ -142,6 +136,6 @@ namespace ClientIPAddresses.DatabaseReader
                 return null;
             }
             return locationsDictionary[city];
-        }       
+        }
     }
 }
